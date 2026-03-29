@@ -1,0 +1,33 @@
+---
+import { getCoverUrl, type Article } from '../../lib/pocketbase';
+import { formatDate, categoryColor } from '../../lib/utils';
+
+interface Props {
+  article: Article;
+  featured?: boolean;
+}
+
+const { article, featured = false } = Astro.props;
+const category = article.expand?.category;
+const coverUrl = getCoverUrl(article, featured ? '1200x600' : '600x300');
+---
+
+<a href={`/blog/${article.slug}`} class={`group block bg-white rounded-card shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 overflow-hidden ${featured ? 'md:col-span-2' : ''}`}>
+  {article.cover_image && (
+    <div class={`overflow-hidden ${featured ? 'aspect-[2/1]' : 'aspect-video'}`}>
+      <img src={coverUrl} alt={article.title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+    </div>
+  )}
+  <div class="p-5">
+    {category && (
+      <span class={`inline-block px-3 py-1 rounded-badge text-xs font-bold mb-3 ${categoryColor(category.slug)}`}>
+        {category.icon} {category.name}
+      </span>
+    )}
+    <h2 class={`font-display text-ink group-hover:text-blush transition-colors leading-tight mb-2 ${featured ? 'text-2xl' : 'text-lg'}`}>
+      {article.title}
+    </h2>
+    <p class="text-ink-light text-sm leading-relaxed line-clamp-2 mb-4">{article.excerpt}</p>
+    <p class="text-ink-light text-xs">{formatDate(article.publication_date)}</p>
+  </div>
+</a>

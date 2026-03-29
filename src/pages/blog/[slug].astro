@@ -1,0 +1,14 @@
+---
+import BlogPost from '../../layouts/BlogPost.astro';
+import { getArticleBySlug } from '../../lib/pocketbase';
+
+const { slug } = Astro.params;
+let article;
+try {
+  article = await getArticleBySlug(slug!);
+} catch (e) {
+  return Astro.redirect('/404');
+}
+---
+
+<BlogPost article={article} />

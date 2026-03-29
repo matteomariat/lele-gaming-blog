@@ -1,0 +1,31 @@
+---
+import Base from '../../layouts/Base.astro';
+import ArticleCard from '../../components/blog/ArticleCard.astro';
+import { getArticles } from '../../lib/pocketbase';
+
+const page = Number(Astro.url.searchParams.get('page') ?? 1);
+let articles = { items: [], totalPages: 0 };
+try {
+  articles = await getArticles(page, 12);
+} catch (e) {}
+---
+
+<Base title="Articles">
+  <div class="max-w-6xl mx-auto px-4 py-16">
+    <h1 class="font-display text-4xl gradient-text mb-10">Tous les articles</h1>
+    {articles.items.length === 0 ? (
+      <p class="text-ink-light text-center py-20">Aucun article pour le moment</p>
+    ) : (
+      <div class="grid md:grid-cols-3 gap-6">
+        {articles.items.map((article) => <ArticleCard article={article} />)}
+      </div>
+    )}
+    {articles.totalPages > 1 && (
+      <div class="flex justify-center gap-3 mt-12">
+        {page > 1 && <a href={`/blog?page=${page - 1}`} class="px-5 py-2 rounded-badge bg-blush font-bold text-ink hover:shadow-card transition-all">Precedent</a>}
+        <span class="px-5 py-2 text-ink-light">{page} / {articles.totalPages}</span>
+        {page < articles.totalPages && <a href={`/blog?page=${page + 1}`} class="px-5 py-2 rounded-badge bg-blush font-bold text-ink hover:shadow-card transition-all">Suivant</a>}
+      </div>
+    )}
+  </div>
+</Base>

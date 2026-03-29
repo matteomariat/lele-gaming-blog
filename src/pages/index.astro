@@ -1,0 +1,46 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleCard from '../components/blog/ArticleCard.astro';
+import { getFeaturedArticles, getArticles } from '../lib/pocketbase';
+
+let featured = [];
+let recent = [];
+try {
+  const featuredRes = await getFeaturedArticles(1);
+  featured = featuredRes.items;
+  const recentRes = await getArticles(1, 6);
+  recent = recentRes.items.filter((a) => a.id !== featured[0]?.id).slice(0, 5);
+} catch (e) {
+  console.error('PocketBase error:', e);
+}
+---
+
+<Base title="Accueil">
+  <section class="relative overflow-hidden py-20 px-4">
+    <div class="absolute inset-0 bg-gradient-to-br from-blush/20 via-cream to-lavender/20 pointer-events-none" />
+    <div class="max-w-3xl mx-auto text-center relative">
+      <p class="text-4xl mb-4 float">🎮</p>
+      <h1 class="font-display text-5xl md:text-6xl gradient-text mb-4">Lele Gaming</h1>
+      <p class="text-xl text-ink-light max-w-xl mx-auto">Reviews, news et coups de coeur gaming — avec une touche de paillettes ✨</p>
+      <a href="/blog" class="inline-block mt-8 px-8 py-3 bg-blush text-ink font-bold rounded-badge shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all">Voir tous les articles →</a>
+    </div>
+  </section>
+
+  {featured.length > 0 && (
+    <section class="max-w-6xl mx-auto px-4 py-12">
+      <h2 class="font-display text-3xl text-ink mb-8">✨ A la une</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        {featured.map((article) => <ArticleCard article={article} featured={true} />)}
+      </div>
+    </section>
+  )}
+
+  {recent.length > 0 && (
+    <section class="max-w-6xl mx-auto px-4 py-12">
+      <h2 class="font-display text-3xl text-ink mb-8">Derniers articles</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        {recent.map((article) => <ArticleCard article={article} />)}
+      </div>
+    </section>
+  )}
+</Base>

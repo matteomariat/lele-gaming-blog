@@ -1,0 +1,31 @@
+---
+import Base from '../../layouts/Base.astro';
+import ArticleCard from '../../components/blog/ArticleCard.astro';
+import { getArticlesByCategory, getCategories } from '../../lib/pocketbase';
+
+const { slug } = Astro.params;
+const page = Number(Astro.url.searchParams.get('page') ?? 1);
+let articles = { items: [], totalPages: 0 };
+let categoryName = slug;
+try {
+  articles = await getArticlesByCategory(slug!, page);
+  const cats = await getCategories();
+  const cat = cats.find((c) => c.slug === slug);
+  if (cat) categoryName = `${cat.icon} ${cat.name}`;
+} catch (e) {
+  return Astro.redirect('/404');
+}
+---
+
+<Base title={`Categorie : ${categoryName}`}>
+  <div class="max-w-6xl mx-auto px-4 py-16">
+    <h1 class="font-display text-4xl gradient-text mb-10">{categoryName}</h1>
+    {articles.items.length === 0 ? (
+      <p class="text-ink-light text-center py-20">Aucun article dans cette categorie</p>
+    ) : (
+      <div class="grid md:grid-cols-3 gap-6">
+        {articles.items.map((article) => <ArticleCard article={article} />)}
+      </div>
+    )}
+  </div>
+</Base>
